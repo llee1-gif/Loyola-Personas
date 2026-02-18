@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loyola Design — Student Recruitment Personas</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── APP SHELL ── */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #1A1A24;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── VIEWS ── */
+#main-view, #persona-view {
+  min-height: 100vh;
+  transition: opacity 0.3s ease;
+}
+#persona-view { display: none; }
+
+/* ── MAIN PAGE ── */
+.main-header {
+  padding: 48px 60px 32px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.main-header .school {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.main-header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 72px;
+  line-height: 0.9;
+  color: white;
+  letter-spacing: 1px;
+}
+.main-header h1 span { color: #FF4D2E; }
+.main-header .sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  margin-top: 14px;
+}
+
+/* ── FILTER TABS ── */
+.filter-bar {
+  padding: 24px 60px 0;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 8.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn:hover, .filter-btn.active {
+  border-color: #FF4D2E;
+  color: #FF4D2E;
+  background: rgba(255,77,46,0.08);
+}
+
+/* ── PERSONA GRID ── */
+.persona-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  padding: 32px 60px 60px;
+}
+
+/* ── PERSONA CARD (main page) ── */
+.p-card {
+  background: #22222E;
+  border: 1.5px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.p-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
+}
+.p-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+
+.p-card-top {
+  padding: 18px 16px 14px;
+  position: relative;
+}
+.p-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.2);
+  margin-bottom: 6px;
+}
+.p-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  line-height: 0.95;
+  color: white;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.p-type {
+  font-family: 'Space Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 2px;
+}
+.p-path {
+  font-family: 'Space Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.p-card-bottom {
+  padding: 12px 16px 14px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.p-keyword {
+  font-family: 'Space Mono', monospace;
+  font-size: 7.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  padding-left: 10px;
+  position: relative;
+}
+.p-keyword::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: rgba(255,255,255,0.2);
+}
+
+.p-arrow {
+  position: absolute;
+  right: 14px;
+  top: 18px;
+  font-size: 14px;
+  opacity: 0.2;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.p-card:hover .p-arrow {
+  opacity: 0.7;
+  transform: translateX(3px);
+}
+
+/* ── PERSONA VIEW ── */
+#persona-view {
+  background: var(--persona-bg, #E0DBD3);
+}
+
+.persona-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  padding: 10px 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.back-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: white;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.back-btn:hover {
+  border-color: #FF4D2E;
+  color: #FF4D2E;
+}
+.nav-persona-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: white;
+  letter-spacing: 1px;
+  opacity: 0.7;
+}
+.nav-prev-next {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+.nav-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav-btn:hover {
+  color: white;
+  border-color: rgba(255,255,255,0.3);
+}
+
+.persona-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: calc(100vh - 57px);
+}
+
+/* ── SHARED CARD STYLES (from personas) ── */
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .card {
+    width: 860px;
+    background: var(--bg);
+    border: 2px solid var(--primary);
+    box-shadow: 6px 6px 0 var(--primary);
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 5px;
+    background: var(--accent);
+    z-index: 10;
+  }
+
+  /* HEADER BAND */
+  .header-band {
+    background: var(--primary);
+    padding: 5px 24px 5px 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .band-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--highlight);
+  }
+  .band-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .band-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .band-ver {
+    margin-left: auto;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.3);
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 2px 6px;
+  }
+
+  /* HERO */
+  .hero {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 260px;
+  }
+  .photo-col {
+    background: var(--accent);
+    display: flex;
+    flex-direction: column;
+  }
+  .photo-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(150deg, #FF6B4A, #C93010);
+    min-height: 210px;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .photo-area svg { opacity: 0.28; }
+  .photo-area span {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .photo-tag {
+    background: var(--primary);
+    padding: 7px 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: var(--highlight);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .hero-right {
+    padding: 28px 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+  }
+  .persona-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 82px;
+    line-height: 0.85;
+    color: var(--primary);
+    letter-spacing: 1px;
+  }
+  .name span { color: var(--accent); }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+  .meta-chip {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: #666;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .meta-chip strong { color: var(--primary); }
+  .quote {
+    border-left: 3px solid var(--accent);
+    padding-left: 14px;
+    font-size: 13.5px;
+    font-style: italic;
+    color: var(--primary);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+
+  /* CONTENT GRID */
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 2px solid var(--primary);
+  }
+
+  .sec {
+    padding: 20px 24px;
+    border-bottom: 1.5px solid rgba(13,27,42,0.1);
+  }
+  .sec.br { border-right: 1.5px solid rgba(13,27,42,0.12); }
+  .sec.full { grid-column: 1 / -1; }
+  .sec.no-bb { border-bottom: none; }
+
+  .sec-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sec-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,77,46,0.2);
+  }
+
+  .sec p {
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #2a2a2a;
+  }
+
+  .kw-list { display: flex; flex-direction: column; gap: 6px; }
+  .kw {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12.5px;
+    color: #222;
+    line-height: 1.5;
+  }
+  .kw-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .kw-dot.warn { background: var(--highlight); }
+  .kw-dot.blue { background: var(--primary); }
+  .kw-dot.green { background: #4a8c6a; }
+
+  /* TRIGGER */
+  .trigger {
+    background: var(--primary);
+    padding: 18px 24px;
+    border-bottom: 1.5px solid rgba(13,27,42,0.1);
+    grid-column: 1 / -1;
+  }
+  .trigger .sec-title { color: var(--highlight); }
+  .trigger .sec-title::after { background: rgba(242,183,5,0.25); }
+  .trigger p { font-size: 12.5px; color: #ccc; line-height: 1.65; }
+  .trigger p strong { color: var(--highlight); font-style: normal; }
+
+  /* TRIGGER CONTRAST BOXES */
+  .trig-contrast {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .trig-box {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 14px;
+    border-radius: 2px;
+  }
+  .trig-box.b {
+    border-color: var(--highlight);
+    background: rgba(242,183,5,0.08);
+  }
+  .trig-box .tbox-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 4px;
+  }
+  .trig-box.b .tbox-label { color: var(--highlight); }
+  .trig-box p { font-size: 12px; color: #bbb; line-height: 1.4; font-style: italic; }
+  .trig-box.b p { color: #e8e0cc; }
+
+  /* PILLS */
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 8.5px;
+    padding: 4px 9px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-radius: 2px;
+  }
+  .pill.dark { background: var(--primary); color: white; }
+  .pill.line { border: 1.5px solid var(--primary); color: var(--primary); }
+  .pill.hot  { background: var(--accent); color: white; }
+
+  /* REACH */
+  .reach {
+    background: var(--highlight);
+    padding: 18px 24px;
+    grid-column: 1 / -1;
+    border-bottom: none;
+  }
+  .reach .sec-title { color: var(--primary); }
+  .reach .sec-title::after { background: rgba(13,27,42,0.2); }
+  .reach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+  .reach-item {
+    font-size: 12px;
+    color: var(--primary);
+    line-height: 1.5;
+    padding-left: 14px;
+    position: relative;
+  }
+  .reach-item::before { content: '→'; position: absolute; left: 0; font-size: 11px; font-weight: 700; }
+
+  /* SUMMARY BLOCK */
+  .summary-block {
+    background: rgba(13,27,42,0.04);
+    border-left: 3px solid var(--primary);
+    padding: 12px 16px;
+    margin-bottom: 4px;
+  }
+  .summary-block p {
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: #2a2a2a;
+    font-style: italic;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--primary);
+    padding: 11px 26px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    align-items: center;
+  }
+  .ftag {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .fsep { color: var(--accent); font-size: 9px; }
+
+/* Per-persona color overrides */
+
+.persona-aaliyah {
+  --primary: #0D1B2A;
+    --accent:  #FF4D2E;
+    --highlight: #F2B705;
+    --bg: #F5F0E8;
+}
+
+.persona-jaylen {
+  --primary:   #1A1A2E;   /* Deep Purple-Navy */
+    --accent:    #00C2A8;   /* Teal */
+    --highlight: #E8F532;   /* Lemon */
+    --bg:        #F2F0F8;   /* Very light lavender */
+}
+
+.persona-sofia {
+  --primary:   #1B3A2D;   /* Deep Forest */
+    --accent:    #FF8C42;   /* Orange */
+    --highlight: #C8E86A;   /* Lime */
+    --bg:        #F2F5EE;   /* Very light sage */
+}
+
+.persona-marcus {
+  --primary:   #0A2240;   /* Midnight Blue */
+    --accent:    #E63946;   /* Red */
+    --highlight: #A8DADC;   /* Sky */
+    --bg:        #EFF5F8;   /* Very light sky */
+}
+
+.persona-jordan {
+  --primary:   #3D2B1F;   /* Espresso */
+    --accent:    #6BCB77;   /* Green */
+    --highlight: #FFD6A5;   /* Peach */
+    --bg:        #FAF5EE;   /* Warm ivory */
+}
+
+.persona-isabelle {
+  --primary:   #1C1C1C;   /* Charcoal */
+    --accent:    #7B2FBE;   /* Violet */
+    --highlight: #FFE66D;   /* Yellow */
+    --bg:        #F6F4FA;   /* Very light lavender */
+}
+
+.persona-devon {
+  --primary:   #003049;   /* Teal Navy */
+    --accent:    #FCBF49;   /* Amber */
+    --highlight: #EAE2B7;   /* Sand */
+    --bg:        #F5F3EA;   /* Warm sand-white */
+}
+
+.persona-zoe {
+  --primary:   #2C2C54;   /* Indigo */
+    --accent:    #FF6B6B;   /* Salmon */
+    --highlight: #C7EFCF;   /* Sage */
+    --bg:        #F4F2FA;   /* Very light indigo-white */
+}
+
+.persona-taylor {
+  --primary:   #5C1A2E;   /* Burgundy */
+    --accent:    #FF6B6B;   /* Coral */
+    --highlight: #A8E6CE;   /* Mint */
+    --bg:        #FAF2F4;   /* Very light blush */
+}
+
+.persona-ethan {
+  --primary:   #1E2A3A;
+    --accent:    #3B82F6;
+    --highlight: #F0EBE3;
+    --bg:        #F2F5F8;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════ MAIN VIEW ══════════ -->
+<div id="main-view">
+  <div class="main-header">
+    <div class="school">Loyola University New Orleans · College of Music and Media · Dept. of Design</div>
+    <h1>Student Recruitment<br><span>Personas</span></h1>
+    <div class="sub">AY 2025–2026 · 10 Personas · Graphic Design & Interactive Design</div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCards('all', this)">All — 10</button>
+    <button class="filter-btn" onclick="filterCards('hs', this)">H.S. Recruitment Visit</button>
+    <button class="filter-btn" onclick="filterCards('freshman', this)">Prospective Freshman</button>
+    <button class="filter-btn" onclick="filterCards('internal', this)">Internal Transfer</button>
+    <button class="filter-btn" onclick="filterCards('external', this)">External Transfer</button>
+    <button class="filter-btn" onclick="filterCards('outofstate', this)">Out-of-State</button>
+    <button class="filter-btn" onclick="filterCards('graphic', this)">Graphic Design</button>
+    <button class="filter-btn" onclick="filterCards('interactive', this)">Interactive Design</button>
+  </div>
+
+  <div class="persona-grid" id="persona-grid">
+
+    <div class="p-card" 
+         data-id="aaliyah" 
+         data-filters="all hs graphic"
+         onclick="showPersona('aaliyah')"
+         style="border-color: #FF4D2E33; --card-accent: #FF4D2E;">
+      <div class="p-card::before" style="background:#FF4D2E;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#FF4D2E;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#01</div>
+        <div class="p-name">Aaliyah<br><span style="color:#FF4D2E;">Johnson</span></div>
+        <div class="p-type">Local H.S. Visit</div>
+        <div class="p-path" style="color:#FF4D2E;">Graphic Design</div>
+        <div class="p-arrow" style="color:#FF4D2E;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">Community Design</div><div class="p-keyword">Fine Art Background</div><div class="p-keyword">New Orleans Local</div>
+      </div>
+    </div>
+
+    <div class="p-card" 
+         data-id="jaylen" 
+         data-filters="all hs interactive"
+         onclick="showPersona('jaylen')"
+         style="border-color: #00C2A833; --card-accent: #00C2A8;">
+      <div class="p-card::before" style="background:#00C2A8;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#00C2A8;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#02</div>
+        <div class="p-name">Jaylen<br><span style="color:#00C2A8;">Washington</span></div>
+        <div class="p-type">Local H.S. Visit</div>
+        <div class="p-path" style="color:#00C2A8;">Interactive Design</div>
+        <div class="p-arrow" style="color:#00C2A8;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">Game UI Focus</div><div class="p-keyword">Self-Taught Gamer</div><div class="p-keyword">New Orleans Local</div>
+      </div>
+    </div>
+
+    <div class="p-card" 
+         data-id="sofia" 
+         data-filters="all freshman graphic"
+         onclick="showPersona('sofia')"
+         style="border-color: #FF8C4233; --card-accent: #FF8C42;">
+      <div class="p-card::before" style="background:#FF8C42;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#FF8C42;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#03</div>
+        <div class="p-name">Sofia<br><span style="color:#FF8C42;">Reyes</span></div>
+        <div class="p-type">Prospective Freshman</div>
+        <div class="p-path" style="color:#FF8C42;">Graphic Design</div>
+        <div class="p-arrow" style="color:#FF8C42;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">Editorial Layout</div><div class="p-keyword">Cultural Storytelling</div><div class="p-keyword">Junior — 1 Year Out</div>
+      </div>
+    </div>
+
+    <div class="p-card" 
+         data-id="marcus" 
+         data-filters="all freshman interactive"
+         onclick="showPersona('marcus')"
+         style="border-color: #E6394633; --card-accent: #E63946;">
+      <div class="p-card::before" style="background:#E63946;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#E63946;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#04</div>
+        <div class="p-name">Marcus<br><span style="color:#E63946;">Tran</span></div>
+        <div class="p-type">Prospective Freshman</div>
+        <div class="p-path" style="color:#E63946;">Interactive Design</div>
+        <div class="p-arrow" style="color:#E63946;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">CS-to-Design</div><div class="p-keyword">STEM Background</div><div class="p-keyword">Baton Rouge</div>
+      </div>
+    </div>
+
+    <div class="p-card" 
+         data-id="jordan" 
+         data-filters="all internal interactive"
+         onclick="showPersona('jordan')"
+         style="border-color: #6BCB7733; --card-accent: #6BCB77;">
+      <div class="p-card::before" style="background:#6BCB77;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#6BCB77;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#05</div>
+        <div class="p-name">Jordan<br><span style="color:#6BCB77;">Baptiste</span></div>
+        <div class="p-type">Internal Transfer</div>
+        <div class="p-path" style="color:#6BCB77;">Interactive Design</div>
+        <div class="p-arrow" style="color:#6BCB77;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">Loyola CS</div><div class="p-keyword">Front-End Developer</div><div class="p-keyword">UI/UX</div>
+      </div>
+    </div>
+
+    <div class="p-card" 
+         data-id="isabelle" 
+         data-filters="all internal graphic"
+         onclick="showPersona('isabelle')"
+         style="border-color: #7B2FBE33; --card-accent: #7B2FBE;">
+      <div class="p-card::before" style="background:#7B2FBE;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#7B2FBE;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#06</div>
+        <div class="p-name">Isabelle<br><span style="color:#7B2FBE;">Moreau</span></div>
+        <div class="p-type">Internal Transfer</div>
+        <div class="p-path" style="color:#7B2FBE;">Graphic Design</div>
+        <div class="p-arrow" style="color:#7B2FBE;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">English / Writing</div><div class="p-keyword">Publication Design</div><div class="p-keyword">Typography</div>
+      </div>
+    </div>
+
+    <div class="p-card" 
+         data-id="devon" 
+         data-filters="all internal graphic interactive"
+         onclick="showPersona('devon')"
+         style="border-color: #FCBF4933; --card-accent: #FCBF49;">
+      <div class="p-card::before" style="background:#FCBF49;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#FCBF49;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#07</div>
+        <div class="p-name">Devon<br><span style="color:#FCBF49;">Castillo</span></div>
+        <div class="p-type">Internal Transfer</div>
+        <div class="p-path" style="color:#FCBF49;">Interactive or Graphic</div>
+        <div class="p-arrow" style="color:#FCBF49;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">Mass Comm</div><div class="p-keyword">Content Creator</div><div class="p-keyword">Media Analytics</div>
+      </div>
+    </div>
+
+    <div class="p-card" 
+         data-id="zoe" 
+         data-filters="all external graphic"
+         onclick="showPersona('zoe')"
+         style="border-color: #FF6B6B33; --card-accent: #FF6B6B;">
+      <div class="p-card::before" style="background:#FF6B6B;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#FF6B6B;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#08</div>
+        <div class="p-name">Zoe<br><span style="color:#FF6B6B;">Fontenot</span></div>
+        <div class="p-type">External Transfer</div>
+        <div class="p-path" style="color:#FF6B6B;">Graphic Design</div>
+        <div class="p-arrow" style="color:#FF6B6B;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">LSU Fine Arts</div><div class="p-keyword">Freelance Experience</div><div class="p-keyword">Small-School Preference</div>
+      </div>
+    </div>
+
+    <div class="p-card" 
+         data-id="taylor" 
+         data-filters="all outofstate graphic"
+         onclick="showPersona('taylor')"
+         style="border-color: #FF6B6B33; --card-accent: #FF6B6B;">
+      <div class="p-card::before" style="background:#FF6B6B;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#FF6B6B;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#09</div>
+        <div class="p-name">Taylor<br><span style="color:#FF6B6B;">Nguyen</span></div>
+        <div class="p-type">Out-of-State Freshman</div>
+        <div class="p-path" style="color:#FF6B6B;">Graphic Design</div>
+        <div class="p-arrow" style="color:#FF6B6B;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">Houston TX</div><div class="p-keyword">TikTok Artist</div><div class="p-keyword">Cultural Inspiration</div>
+      </div>
+    </div>
+
+    <div class="p-card" 
+         data-id="ethan" 
+         data-filters="all outofstate interactive"
+         onclick="showPersona('ethan')"
+         style="border-color: #3B82F633; --card-accent: #3B82F6;">
+      <div class="p-card::before" style="background:#3B82F6;"></div>
+      <div style="position:absolute; left:0; top:0; bottom:0; width:3px; background:#3B82F6;"></div>
+      <div class="p-card-top">
+        <div class="p-num">#10</div>
+        <div class="p-name">Ethan<br><span style="color:#3B82F6;">Park</span></div>
+        <div class="p-type">Out-of-State Freshman</div>
+        <div class="p-path" style="color:#3B82F6;">Interactive Design</div>
+        <div class="p-arrow" style="color:#3B82F6;">→</div>
+      </div>
+      <div class="p-card-bottom">
+        <div class="p-keyword">Atlanta GA</div><div class="p-keyword">App Development</div><div class="p-keyword">CS Background</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PERSONA VIEW ══════════ -->
+<div id="persona-view">
+  <div class="persona-nav">
+    <button class="back-btn" onclick="showMain()">← Back</button>
+    <div class="nav-persona-name" id="nav-name"></div>
+    <div class="nav-prev-next">
+      <button class="nav-btn" onclick="navigate(-1)">← Prev</button>
+      <button class="nav-btn" onclick="navigate(1)">Next →</button>
+    </div>
+  </div>
+  <div class="persona-wrapper" id="persona-wrapper"></div>
+</div>
+
+<script>
+const ORDER = ['aaliyah','jaylen','sofia','marcus','jordan','isabelle','devon','zoe','taylor','ethan'];
+const NAMES = {
+  aaliyah:'Aaliyah Johnson', jaylen:'Jaylen Washington', sofia:'Sofia Reyes',
+  marcus:'Marcus Tran', jordan:'Jordan Baptiste', isabelle:'Isabelle Moreau',
+  devon:'Devon Castillo', zoe:'Zoe Fontenot', taylor:'Taylor Nguyen', ethan:'Ethan Park'
+};
+const BODYBG = {
+  aaliyah: '#E0DBD3',
+  jaylen: '#E2E0EC',
+  sofia: '#E2E8DC',
+  marcus: '#DAE6EA',
+  jordan: '#EDE5D8',
+  isabelle: '#E6E2F0',
+  devon: '#DDD9C8',
+  zoe: '#E0DCF0',
+  taylor: '#EDD8DC',
+  ethan: '#D8DCF0',
+};
+
+const PERSONAS = {};
+PERSONAS["aaliyah"] = "<div class=\"card\">\n\n  <!-- HEADER BAND -->\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">Graphic Design</span>\n  </div>\n\n  <!-- HERO -->\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 Community-Focused Design</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #1</span>\n      <div class=\"name\">Aaliyah<br><span>Johnson</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 18</span>\n        <span class=\"meta-chip\"><strong>New Orleans, LA</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> Fine Art \u2014 Painting & Drawing</span>\n        <span class=\"meta-chip\"><strong>Path</strong> Graphic Design</span>\n      </div>\n      <div class=\"quote\">I don't just want my work to hang on a wall. I want people to use it.</div>\n    </div>\n  </div>\n\n  <!-- CONTENT -->\n  <div class=\"content\">\n\n    <!-- SUMMARY \u2014 full width -->\n    <div class=\"sec full\" style=\"border-right:none;\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A community-driven fine artist who wants to transform her creative practice into meaningful, functional design work that serves real people \u2014 not just gallery spaces. She is not leaving art. She is expanding it into communication.</p>\n      </div>\n    </div>\n\n    <!-- TRIGGER \u2014 full width -->\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <p>Watching a restaurant menu redesign process revealed the gap between two very different design outcomes:</p>\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">Before</div>\n          <p>Making something look beautiful</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">The Realization</div>\n          <p>Making something <strong>work effectively</strong> for real people</p>\n        </div>\n      </div>\n    </div>\n\n    <!-- GOALS -->\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Use design as a tool for community storytelling</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Create work with real-world function and impact</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Stay in New Orleans \u2014 design for the culture she grew up in</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Gain professional skills without losing her artistic identity</div>\n      </div>\n    </div>\n\n    <!-- PAIN POINTS -->\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Fear that graphic design may feel \"less creative\" than fine art</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Intimidated by professional Adobe workflows</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>First-generation college student \u2014 needs significant financial aid</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Unsure about local design job opportunities post-graduation</div>\n      </div>\n    </div>\n\n    <!-- STRENGTHS + TOOLS -->\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Strong foundation in composition & visual storytelling</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Community center design \u2014 flyers, event graphics, social posts</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Instagram art account (~2,400 followers)</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">Procreate \u2605\u2605\u2605</span>\n        <span class=\"pill dark\">Illustrator \u2605\u2605</span>\n        <span class=\"pill line\">Canva</span>\n        <span class=\"pill line\">TikTok / Reels</span>\n      </div>\n    </div>\n\n    <!-- WHY LOYOLA -->\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 Her Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Design framed as community storytelling, not just software</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Jesuit social-justice values align with her upbringing</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Studio culture feels like a continuation of her arts education</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Ability to stay rooted in New Orleans</div>\n      </div>\n    </div>\n\n    <!-- CONVERSION LEVERS \u2014 full width gold -->\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Lead with scholarship and Pell Grant transparency \u2014 cost is the conversion point</div>\n        <div class=\"reach-item\">Showcase student community-branding projects on tours and in materials</div>\n        <div class=\"reach-item\">Frame Design = Impact, not Design = Software \u2014 speak to her values first</div>\n        <div class=\"reach-item\">Reassure that creativity deepens in graphic design \u2014 it does not shrink</div>\n      </div>\n    </div>\n\n  </div>\n\n  <!-- FOOTER -->\n  <div class=\"footer\">\n    <span class=\"ftag\">New Orleans Local</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Fine-Art Background</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Community Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Social Impact</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Graphic Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Persona #1 \u00b7 AY 2025\u20132026</span>\n  </div>\n\n</div>";
+PERSONAS["jaylen"] = "<div class=\"card\">\n\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">Interactive Design \u00b7 #2</span>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 Game UI Focus</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #2</span>\n      <div class=\"name\">Jaylen<br><span>Washington</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 17</span>\n        <span class=\"meta-chip\"><strong>New Orleans, LA \u2014 Mid-City</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> Self-Taught Gamer & Modder</span>\n        <span class=\"meta-chip\"><strong>Path</strong> Interactive Design</span>\n      </div>\n      <div class=\"quote\">I play games every day. But I want to design the parts everyone actually uses.</div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n\n    <!-- SUMMARY -->\n    <div class=\"sec full\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A self-taught gamer who has been designing UI inside games without knowing it was a profession \u2014 now looking for formal training to turn instinct into a career. He doesn't want to code the engine. He wants to design the experience layer.</p>\n      </div>\n    </div>\n\n    <!-- TRIGGER -->\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <p>During a campus visit, Jaylen saw a student capstone project \u2014 an app interface built like a game HUD. For the first time, everything clicked:</p>\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">Before the Visit</div>\n          <p>Assumed game designers were all programmers \u2014 didn't know UI design was a major</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">The Realization</div>\n          <p>Designing interactive systems is a real, hireable profession \u2014 and he's already been doing it</p>\n        </div>\n      </div>\n    </div>\n\n    <!-- GOALS -->\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Design UI for games \u2014 menus, maps, HUD systems</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Turn gaming passion into a legitimate, hireable career</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Build a professional portfolio from informal online work</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Stay connected to New Orleans' growing creative-tech scene</div>\n      </div>\n    </div>\n\n    <!-- PAIN POINTS -->\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>No traditional portfolio \u2014 work lives online, not in PDF form</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Parents expect a STEM or business degree</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Unsure if Interactive Design leads to real game-industry jobs</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Comparing Loyola cost to free-to-apply UNO</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Beginner in formal tools like Figma</div>\n      </div>\n    </div>\n\n    <!-- STRENGTHS + TOOLS -->\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Self-taught game UI modding \u2014 Roblox Studio</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Advanced Minecraft texture-pack design</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Reddit recognition \u2014 thousands of upvotes</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Strong instinct for interactive systems & visual hierarchy</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">Roblox Studio</span>\n        <span class=\"pill hot\">Minecraft Modding</span>\n        <span class=\"pill dark\">Discord Branding</span>\n        <span class=\"pill line\">Figma \u2014 Beginner</span>\n      </div>\n    </div>\n\n    <!-- WHY LOYOLA -->\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 His Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>First place he saw UI design taught formally</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Small class size \u2014 direct critique and fast growth</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Program teaches the visual layer of gaming he's been learning alone</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>City already feels like home \u2014 not a relocation risk</div>\n      </div>\n    </div>\n\n    <!-- CONVERSION LEVERS -->\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Clearly state on all materials: \"Game UI is taught here\"</div>\n        <div class=\"reach-item\">Show student HUD and interactive capstone projects during tours</div>\n        <div class=\"reach-item\">Produce a short explainer: UI/UX \u2192 Game Industry career path</div>\n        <div class=\"reach-item\">Connect with alumni working in game or interactive media roles</div>\n        <div class=\"reach-item\">Provide a guide on converting online game work into a formal portfolio</div>\n        <div class=\"reach-item\">Host a dedicated Game UI Demo Day for local esports clubs</div>\n      </div>\n    </div>\n\n  </div>\n\n  <div class=\"footer\">\n    <span class=\"ftag\">New Orleans Local</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Self-Taught</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Gamer</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Game UI</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Interactive Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">AY 2025\u20132026</span>\n  </div>\n\n</div>";
+PERSONAS["sofia"] = "<div class=\"card\">\n\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">Graphic Design \u00b7 #3</span>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 Publication & Brand Focus</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #3</span>\n      <div class=\"name\">Sofia<br><span>Reyes</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 16</span>\n        <span class=\"meta-chip\"><strong>Metairie, LA</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> Yearbook & Editorial Layout</span>\n        <span class=\"meta-chip\"><strong>Path</strong> Graphic Design</span>\n      </div>\n      <div class=\"quote\">I redesign magazine covers in my sketchbook for fun. I didn't know you could study that.</div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n\n    <!-- SUMMARY -->\n    <div class=\"sec full\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A culturally grounded editorial designer who has been designing magazine spreads and mastheads instinctively \u2014 and is just realizing that publication design is a serious academic discipline. She doesn't want to leave storytelling. She wants to translate it visually.</p>\n      </div>\n    </div>\n\n    <!-- TRIGGER -->\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <p>During a campus visit, she saw a Loyola student's editorial spread on Mardi Gras Indian culture. It wasn't just beautiful \u2014 it carried cultural meaning. That moment showed her:</p>\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">What She Thought Design Was</div>\n          <p>Decorative, surface-level \u2014 something separate from culture and identity</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">The Realization</div>\n          <p>Graphic design can hold identity \u2014 editorial design can be serious, not decorative</p>\n        </div>\n      </div>\n    </div>\n\n    <!-- GOALS -->\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Turn her love of editorial layout into a professional path</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Use design as cultural storytelling</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Develop strong typography and publication skills</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Study where her work is seen and critiqued personally</div>\n      </div>\n    </div>\n\n    <!-- PAIN POINTS -->\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Still a junior \u2014 risk of losing momentum over 12+ months</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Parents see design as financially unstable</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Limited Adobe Suite experience beyond basic Photoshop</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>LSU has stronger name recognition with her parents</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Feels \"behind\" before she even starts</div>\n      </div>\n    </div>\n\n    <!-- STRENGTHS + TOOLS -->\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>2 years as Yearbook Layout Editor</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Redesigned school newspaper masthead & typography</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Deep cultural awareness \u2014 Honduran-American identity</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Strong instinct for layout, hierarchy, and analog ideation</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">Canva \u2014 Advanced</span>\n        <span class=\"pill dark\">Hand Lettering</span>\n        <span class=\"pill dark\">Sketchbook Ideation</span>\n        <span class=\"pill line\">Photoshop \u2014 Basic</span>\n      </div>\n    </div>\n\n    <!-- WHY LOYOLA -->\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 Her Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Editorial & publication design treated as a real discipline</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>New Orleans as living cultural design resource</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Small studio scale \u2014 personalized critique</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Close enough to Metairie to reassure family</div>\n      </div>\n    </div>\n\n    <!-- CONVERSION LEVERS -->\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Send personalized follow-up within 48 hours of campus visit</div>\n        <div class=\"reach-item\">Match her with editorial student projects aligned to her cultural interests</div>\n        <div class=\"reach-item\">Offer hands-on Illustrator workshop for visiting high school students</div>\n        <div class=\"reach-item\">Clearly name \"Publication & Editorial Design\" as a track in all materials</div>\n        <div class=\"reach-item\">Assign a peer mentor early \u2014 relationship continuity matters over 12+ months</div>\n        <div class=\"reach-item\">Share concrete design career outcome data to address parental concerns</div>\n      </div>\n    </div>\n\n  </div>\n\n  <div class=\"footer\">\n    <span class=\"ftag\">Metro New Orleans</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Yearbook / Editorial</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Cultural Storytelling</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Junior \u2014 1 Year Out</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Graphic Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">AY 2025\u20132026</span>\n  </div>\n\n</div>";
+PERSONAS["marcus"] = "<div class=\"card\">\n\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">Interactive Design \u00b7 #4</span>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 CS-to-Design Bridge</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #4</span>\n      <div class=\"name\">Marcus<br><span>Tran</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 17</span>\n        <span class=\"meta-chip\"><strong>Baton Rouge, LA</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> STEM \u2014 AP CS A, LSMSA</span>\n        <span class=\"meta-chip\"><strong>Path</strong> Interactive (UI/UX) Design</span>\n      </div>\n      <div class=\"quote\">I can build the app. I just can't make it look good \u2014 or make it work for people who aren't me.</div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n\n    <!-- SUMMARY -->\n    <div class=\"sec full\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A technically strong STEM student who discovered that his biggest problem wasn't coding \u2014 it was design. Now seeking a structured way to bridge engineering thinking with human-centered experience. He doesn't want to abandon tech. He wants to humanize it.</p>\n      </div>\n    </div>\n\n    <!-- TRIGGER -->\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <p>During user testing of his scheduling app, a classmate clicked the wrong button three times in a row. The bug wasn't in the code \u2014 it was in the visual hierarchy. That moment reframed everything:</p>\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">What He Assumed</div>\n          <p>If the code works, the product works \u2014 design is secondary</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">The Realization</div>\n          <p>Design decisions determine usability \u2014 and he had no training for that</p>\n        </div>\n      </div>\n    </div>\n\n    <!-- GOALS -->\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Design interfaces that work for real users, not just himself</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Combine technical skill with creative problem-solving</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Build a national-level tech career \u2014 Austin, NYC, Atlanta</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Gain formal UX methodology beyond self-taught tools</div>\n      </div>\n    </div>\n\n    <!-- PAIN POINTS -->\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Parents prefer Computer Science \u2014 needs proof to justify switch</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Wants salary and placement data before committing</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Concerned about tech rigor compared to LSU or Tulane</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Wants job opportunities well beyond Louisiana</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>No formal visual portfolio \u2014 work exists as code and repos</div>\n      </div>\n    </div>\n\n    <!-- STRENGTHS + TOOLS -->\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Built and deployed an app used by 80+ classmates</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Analytical, systems-thinking mindset</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Hackathon participant \u2014 UI/UX track</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>GitHub project management</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">Python / Java \u2014 Mid</span>\n        <span class=\"pill hot\">HTML / CSS \u2014 Mid</span>\n        <span class=\"pill dark\">Figma \u2014 Self-Taught</span>\n        <span class=\"pill line\">GitHub</span>\n      </div>\n    </div>\n\n    <!-- WHY LOYOLA -->\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 His Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Interactive Design positioned as a tech\u2013creativity bridge</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Structured UX curriculum \u2014 not just tools, but methodology</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Small studio mentorship vs. 500-person CS lecture halls</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Dual concentration option offers flexibility</div>\n      </div>\n    </div>\n\n    <!-- CONVERSION LEVERS -->\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Publish alumni career outcomes with company names and cities \u2014 Austin, NYC, Atlanta placements matter most</div>\n        <div class=\"reach-item\">Provide parent-facing salary comparison: UX Designer vs. CS Developer trajectories</div>\n        <div class=\"reach-item\">Offer a \"Design for CS Students\" info session targeting LSMSA and similar STEM schools</div>\n        <div class=\"reach-item\">Create a portfolio guide that reframes GitHub repos and deployed apps as design case studies</div>\n      </div>\n    </div>\n\n  </div>\n\n  <div class=\"footer\">\n    <span class=\"ftag\">Louisiana (Baton Rouge)</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">STEM Background</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">CS-to-Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">App Prototyping</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Interactive Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">AY 2025\u20132026</span>\n  </div>\n\n</div>";
+PERSONAS["jordan"] = "<div class=\"card\">\n\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">Internal Transfer \u00b7 #5</span>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 Front-End + UX Hybrid</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #5</span>\n      <div class=\"name\">Jordan<br><span>Baptiste</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 20</span>\n        <span class=\"meta-chip\"><strong>New Orleans East, LA</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> CS \u2014 Loyola, 2nd Year</span>\n        <span class=\"meta-chip\"><strong>Path</strong> Internal Transfer \u2192 Interactive Design</span>\n      </div>\n      <div class=\"quote\">I know how to code. But I keep volunteering to do the front-end because it's the only part I actually enjoy.</div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n\n    <!-- SUMMARY -->\n    <div class=\"sec full\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A CS student who keeps choosing front-end and UI work because it's the only part he truly enjoys \u2014 now evaluating whether design is the right long-term direction. He doesn't want to abandon CS. He wants to redirect it toward experience design.</p>\n      </div>\n    </div>\n\n    <!-- TRIGGER -->\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <p>After a hackathon, a CS professor saw Jordan's UI mockup and told him directly: \"This belongs in a design class.\" That single remark validated what he already suspected \u2014 his strength isn't just technical execution, it's interface thinking.</p>\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">Before the Remark</div>\n          <p>Doing UI work instinctively but treating it as a side skill within CS</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">After the Remark</div>\n          <p>Booked a Design advisor meeting the next day \u2014 external validation turned suspicion into action</p>\n        </div>\n      </div>\n    </div>\n\n    <!-- GOALS -->\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Combine coding skills with user-centered design</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Build a hybrid career \u2014 Front-End Developer + UX Designer</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Graduate on time without losing hard-earned credits</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Make a decision that still makes sense to his family</div>\n      </div>\n    </div>\n\n    <!-- PAIN POINTS -->\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Needs exact count of transferable CS credits \u2014 not reassurance</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Concerned about adding a semester and delaying graduation</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Imposter fear \u2014 no formal art background among design peers</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Family sees CS as more stable and prestigious than Design</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Risk of losing professional credibility mid-degree</div>\n      </div>\n    </div>\n\n    <!-- STRENGTHS + TOOLS -->\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Hackathon front-end UI lead \u2014 team award winner</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>CS peer tutor \u2014 strong communicator and systems thinker</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Personal mobile app project in active development</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Technical discipline with a natural eye for interfaces</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">JavaScript / React</span>\n        <span class=\"pill hot\">HTML / CSS</span>\n        <span class=\"pill dark\">Figma \u2014 Self-Taught</span>\n        <span class=\"pill line\">GitHub</span>\n      </div>\n    </div>\n\n    <!-- WHY LOYOLA -->\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 His Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Already enrolled \u2014 lower transition friction than external transfer</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Faculty accessible across departments \u2014 relationships already exist</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Hybrid path preserves coding investment, adds design methodology</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Small design cohort accelerates skill growth faster than large programs</div>\n      </div>\n    </div>\n\n    <!-- CONVERSION LEVERS -->\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Publish a specific CS \u2192 Design credit-transfer map \u2014 remove ambiguity, not just anxiety</div>\n        <div class=\"reach-item\">Provide clear graduation timeline scenarios for 2nd-year transfers</div>\n        <div class=\"reach-item\">Highlight alumni who switched from CS to Design \u2014 real names, real outcomes</div>\n        <div class=\"reach-item\">Host an annual CS \u00d7 Design crossover event \u2014 projects, not panels</div>\n        <div class=\"reach-item\">Have Design faculty attend CS hackathons proactively \u2014 find Jordan before he finds you</div>\n        <div class=\"reach-item\">Build a CS-to-Design alumni spotlight series for social media</div>\n      </div>\n    </div>\n\n  </div>\n\n  <div class=\"footer\">\n    <span class=\"ftag\">Internal Transfer</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Loyola CS</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Front-End Developer</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">UI/UX</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Interactive Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">AY 2025\u20132026</span>\n  </div>\n\n</div>";
+PERSONAS["isabelle"] = "<div class=\"card\">\n\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">Internal Transfer \u00b7 #6</span>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 Editorial & Publication Design</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #6</span>\n      <div class=\"name\">Isabelle<br><span>Moreau</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 19</span>\n        <span class=\"meta-chip\"><strong>New Orleans, LA</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> English / Creative Writing \u2014 Loyola, 2nd Year</span>\n        <span class=\"meta-chip\"><strong>Path</strong> Internal Transfer \u2192 Graphic Design</span>\n      </div>\n      <div class=\"quote\">I've been using words to tell stories. I just found out images can tell the same stories \u2014 only faster.</div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n\n    <!-- SUMMARY -->\n    <div class=\"sec full\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A literary storyteller who discovered that her strongest impact wasn't just in writing \u2014 it was in layout, typography, and visual communication. She sees design not as a pivot, but as a second language. She isn't leaving writing. She's expanding her expressive range.</p>\n      </div>\n    </div>\n\n    <!-- TRIGGER -->\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <p>After redesigning The Maroon literary magazine layout, a classmate stopped her and asked: \"Who designed this?\" The praise wasn't about her writing \u2014 it was about the visuals.</p>\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">How She Saw Herself</div>\n          <p>A writer who happened to be good at layout \u2014 design as a secondary skill</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">The Realization</div>\n          <p>Her design instincts had standalone power \u2014 recognized independently of her writing</p>\n        </div>\n      </div>\n    </div>\n\n    <!-- GOALS -->\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Translate storytelling into visual form</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Work in editorial, book cover, or literary brand design</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Professionalize layout and typography skills</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Add design without losing her literary identity</div>\n      </div>\n    </div>\n\n    <!-- PAIN POINTS -->\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Imposter fear \u2014 no formal art or drawing background</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Anxiety about leaving the Writers' Circle community</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Credit-transfer uncertainty \u2014 English electives to Design</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Concern about salary and long-term financial stability</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Fear of \"choosing wrong twice\" after switching majors</div>\n      </div>\n    </div>\n\n    <!-- STRENGTHS + TOOLS -->\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Editor-in-Chief, The Maroon literary magazine</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Strong editorial layout instincts and cultural storytelling sensibility</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Poster design for local bookstore events</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Comfortable leading creative communities</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">Canva \u2014 Advanced</span>\n        <span class=\"pill dark\">Magazine Layout</span>\n        <span class=\"pill line\">Basic Photoshop</span>\n        <span class=\"pill line\">MS Word Layout</span>\n      </div>\n    </div>\n\n    <!-- WHY LOYOLA -->\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 Her Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Typography & publication design extend her literary craft directly</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Existing faculty relationships reduce transition friction</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Adobe Suite would formalize skills she built instinctively</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Design opens doors aligned with her world \u2014 books, culture, editorial</div>\n      </div>\n    </div>\n\n    <!-- CONVERSION LEVERS -->\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Co-host an English \u00d7 Design \"Visual Storytelling\" seminar \u2014 lower the psychological threshold for writers</div>\n        <div class=\"reach-item\">Publish a clear English-to-Design credit map \u2014 specifics remove fear better than reassurance</div>\n        <div class=\"reach-item\">Highlight book cover, editorial, and literary branding tracks explicitly in all materials</div>\n        <div class=\"reach-item\">Feature alumni who transitioned from non-art majors \u2014 Isabelle needs to hear her story told by someone ahead of her</div>\n        <div class=\"reach-item\">Normalize non-traditional design backgrounds openly \u2014 \"you don't need to draw to design\"</div>\n        <div class=\"reach-item\">Connect with a current Design student who also came from writing or humanities</div>\n      </div>\n    </div>\n\n  </div>\n\n  <div class=\"footer\">\n    <span class=\"ftag\">Internal Transfer</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">English / Creative Writing</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Publication Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Typography</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Visual Storytelling</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">AY 2025\u20132026</span>\n  </div>\n\n</div>";
+PERSONAS["devon"] = "<div class=\"card\">\n\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">Internal Transfer \u00b7 #7</span>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 Design + Media Hybrid</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #7</span>\n      <div class=\"name\">Devon<br><span>Castillo</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 20</span>\n        <span class=\"meta-chip\"><strong>Orlando, FL \u2192 New Orleans, LA</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> Mass Communication / Digital Media</span>\n        <span class=\"meta-chip\"><strong>Path</strong> Internal Transfer \u2192 Interactive or Graphic Design</span>\n      </div>\n      <div class=\"quote\">I produce content all day. But I keep asking: why does some content stop the scroll and other content doesn't? I think the answer is design.</div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n\n    <!-- SUMMARY -->\n    <div class=\"sec full\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A data-driven content creator who discovered that design decisions \u2014 not just content strategy \u2014 are what drive measurable engagement. Now evaluating whether to fully transition into Design or build a hybrid path. He isn't chasing aesthetics. He's chasing measurable impact.</p>\n      </div>\n    </div>\n\n    <!-- TRIGGER -->\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <div class=\"stat-row\">\n        <div class=\"stat-box\">\n          <div class=\"stat-num\">300%</div>\n          <div class=\"stat-label\">Follower Growth</div>\n        </div>\n        <div class=\"stat-desc\">\n          <p>After redesigning a startup's Instagram presence, Devon brought the analytics to his professor. <strong>300% follower growth after the rebrand.</strong> The response: \"You should be in the Design department.\" The numbers confirmed what instinct alone couldn't.</p>\n        </div>\n      </div>\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">How He Saw His Work</div>\n          <p>Content strategy with some visual execution \u2014 design as execution, not authorship</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">The Realization</div>\n          <p>Design decisions were driving the numbers \u2014 and he had no formal language for what he was doing</p>\n        </div>\n      </div>\n    </div>\n\n    <!-- GOALS -->\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Understand why certain content stops the scroll</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Turn analytics-backed instincts into formal design expertise</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Build a hybrid media + design portfolio</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Choose the smartest academic path \u2014 transfer, double major, or minor</div>\n      </div>\n    </div>\n\n    <!-- PAIN POINTS -->\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Strategic uncertainty \u2014 full transfer vs. double major vs. minor</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Concern about adding semesters or delaying graduation</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Risk of losing Mass Comm internship and professional network</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Feels behind peers with traditional drawing backgrounds</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Needs clarity on timeline and credit overlap before deciding</div>\n      </div>\n    </div>\n\n    <!-- STRENGTHS + TOOLS -->\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Runs a YouTube channel and podcast \u2014 proven content production</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Digital marketing internship \u2014 New Orleans startup</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>300% growth tracked via analytics \u2014 design decisions proven by data</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Strong understanding of audience behavior and engagement patterns</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">Canva \u2014 Advanced</span>\n        <span class=\"pill dark\">Premiere Pro</span>\n        <span class=\"pill dark\">After Effects \u2014 Basic</span>\n        <span class=\"pill line\">Social Analytics</span>\n      </div>\n    </div>\n\n    <!-- WHY LOYOLA -->\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 His Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Design formalizes what he already proves with analytics</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Media + Design hybrid increases agency-level competitiveness</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>UX and branding align directly with content strategy thinking</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Some Mass Comm credits may transfer \u2014 reduced timeline cost</div>\n      </div>\n    </div>\n\n    <!-- CONVERSION LEVERS -->\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Create a \"Design + Media Career Path\" joint session co-hosted by Mass Comm and Design departments</div>\n        <div class=\"reach-item\">Provide a clear comparison chart \u2014 full transfer vs. double major vs. minor \u2014 with timeline and credit impact</div>\n        <div class=\"reach-item\">Highlight alumni who moved from Mass Comm to Brand or UX roles \u2014 Devon needs his path, not a generic one</div>\n        <div class=\"reach-item\">Invite him to a capstone project preview \u2014 real client work answers \"is this what I want?\" faster than any brochure</div>\n        <div class=\"reach-item\">Frame design as performance-driven, not purely artistic \u2014 speak his language: engagement, conversion, impact</div>\n        <div class=\"reach-item\">Clarify Mass Comm credit overlap explicitly \u2014 remove the timeline ambiguity blocking his decision</div>\n      </div>\n    </div>\n\n  </div>\n\n  <div class=\"footer\">\n    <span class=\"ftag\">Internal Transfer</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Mass Communication</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Content Creator</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Branding</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Media Analytics</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">AY 2025\u20132026</span>\n  </div>\n\n</div>";
+PERSONAS["zoe"] = "<div class=\"card\">\n\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">External Transfer \u00b7 #8</span>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 Fine Arts \u2192 Graphic Design</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #8</span>\n      <div class=\"name\">Zoe<br><span>Fontenot</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 19</span>\n        <span class=\"meta-chip\"><strong>Baton Rouge, LA</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> Fine Arts \u2014 LSU, 1st Year</span>\n        <span class=\"meta-chip\"><strong>Path</strong> External Transfer \u2192 Graphic Design</span>\n      </div>\n      <div class=\"quote\">I need a professor who knows my name.</div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n\n    <!-- SUMMARY -->\n    <div class=\"sec full\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A fine arts student who discovered that scale matters more than prestige. She doesn't need a bigger school \u2014 she needs direct critique, mentorship, and visibility. She isn't leaving because LSU is weak. She's leaving because she feels invisible.</p>\n      </div>\n    </div>\n\n    <!-- TRIGGER -->\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <p>Her layout project was selected for LSU's departmental show. Recognition without relationship \u2014 the clearest possible signal that the learning structure wasn't working for her.</p>\n      <div class=\"invisible-row\">\n        <div class=\"invisible-box\">\n          <div class=\"ib-label\">What Happened</div>\n          <p>Layout project selected for LSU's departmental exhibition \u2014 public recognition of her work</p>\n        </div>\n        <div class=\"invisible-box highlight\">\n          <div class=\"ib-label\">What Never Happened</div>\n          <p>Not a single one-on-one critique from any professor. The issue wasn't quality \u2014 it was learning structure.</p>\n        </div>\n      </div>\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">What She Assumed</div>\n          <p>A good school would give her the feedback and mentorship she needed to grow</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">The Realization</div>\n          <p>Scale determines access to feedback \u2014 prestige doesn't guarantee personal investment</p>\n        </div>\n      </div>\n    </div>\n\n    <!-- GOALS -->\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Receive individualized critique and mentorship</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Develop professional design skills beyond fine art</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Formalize and grow her freelance practice</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Join a program where faculty know her work personally</div>\n      </div>\n    </div>\n\n    <!-- PAIN POINTS -->\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Loyola tuition significantly higher than LSU \u2014 financial aid is critical</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Needs clear scholarship and net-cost transparency before committing</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Credit-transfer uncertainty from LSU Fine Arts</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Moving to New Orleans means rebuilding network from zero</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Wants confirmation the degree carries real industry credibility</div>\n      </div>\n    </div>\n\n    <!-- STRENGTHS + TOOLS -->\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Advanced fine art foundation \u2014 drawing and analog craft</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Freelance brand identity and album cover design \u2014 active clients</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Baton Rouge indie music scene \u2014 working professional relationships</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Self-motivated \u2014 already operating professionally without a degree</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">Drawing \u2014 Advanced</span>\n        <span class=\"pill dark\">Illustrator \u2014 Mid</span>\n        <span class=\"pill dark\">Photoshop \u2014 Mid</span>\n        <span class=\"pill line\">InDesign \u2014 Basic</span>\n      </div>\n    </div>\n\n    <!-- WHY LOYOLA -->\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 Her Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Studio-scale guarantee \u2014 faculty know every student's name and work</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Critique culture and direct mentorship \u2014 what LSU couldn't provide</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>New Orleans creative ecosystem supports and grows freelance work</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Jesuit values resonate with her community-oriented approach to design</div>\n      </div>\n    </div>\n\n    <!-- CONVERSION LEVERS -->\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Host a transfer-specific Open Studio Day with on-site credit review \u2014 not a general tour, a targeted event</div>\n        <div class=\"reach-item\">Publish a clear net-cost comparison vs. LSU \u2014 cost transparency converts this audience, not program quality arguments</div>\n        <div class=\"reach-item\">Show critique culture through video proof \u2014 faculty engaging with student work is more convincing than any brochure</div>\n        <div class=\"reach-item\">Connect her directly with a student who transferred from a large university \u2014 peer testimony closes the deal</div>\n        <div class=\"reach-item\">Promote transfer merit scholarships prominently \u2014 make financial aid the first thing she sees, not the last</div>\n        <div class=\"reach-item\">Clarify LSU Fine Arts credit overlap explicitly \u2014 she has already made the values decision, paperwork is the remaining barrier</div>\n      </div>\n    </div>\n\n  </div>\n\n  <div class=\"footer\">\n    <span class=\"ftag\">External Transfer</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">LSU Fine Arts</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Freelance Experience</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Small-School Preference</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Graphic Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">AY 2025\u20132026</span>\n  </div>\n\n</div>";
+PERSONAS["taylor"] = "<div class=\"card\">\n\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">Out-of-State \u00b7 #9</span>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 Social Media \u2192 Graphic Design</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #9</span>\n      <div class=\"name\">Taylor<br><span>Nguyen</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 17</span>\n        <span class=\"meta-chip\"><strong>Houston, TX</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> AP Art Studio / Social Media Artist</span>\n        <span class=\"meta-chip\"><strong>Path</strong> Graphic Design \u2014 Out-of-State</span>\n      </div>\n      <div class=\"quote\">I want to live inside that creative energy while I learn to design.</div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n\n    <!-- SUMMARY -->\n    <div class=\"sec full\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A visually driven social-media creator who sees New Orleans not just as a city, but as a living design curriculum. She is choosing environment and inspiration over institutional prestige. For Taylor, the city itself is part of the education.</p>\n      </div>\n    </div>\n\n    <!-- TRIGGER -->\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <p>During spring break, she walked through the French Quarter filling an entire camera roll \u2014 every sign, mural, storefront, and parade visual a new piece of evidence. What she photographed wasn't tourist content. It was a design brief she didn't know she was writing.</p>\n\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">Before the Trip</div>\n          <p>New Orleans as a spring break destination \u2014 cultural tourism, not creative research</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">The Realization</div>\n          <p>New Orleans is a design textbook she can walk through every single day \u2014 no other school can offer this</p>\n        </div>\n      </div>\n    </div>\n\n    <!-- GOALS -->\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Study design in a culturally rich, visually immersive city</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Evolve from social-media art into professional graphic design</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Work with real cultural clients early in her education</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Build a career that extends well beyond one region</div>\n      </div>\n    </div>\n\n    <!-- PAIN POINTS -->\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Higher tuition vs. UT Austin or Texas A&amp;M \u2014 net cost is the friction point</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Out-of-state distance \u2014 6+ hours from Houston family</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Parents prioritize institutional name recognition over program fit</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Concern that New Orleans job market is too small for national ambitions</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Needs proof that Loyola graduates get hired outside Louisiana</div>\n      </div>\n    </div>\n\n    <!-- STRENGTHS + TOOLS -->\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>TikTok digital art account \u2014 10,000 followers</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Yearbook cover designer \u2014 multiple consecutive years</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Art Club president \u2014 leadership and creative community experience</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Cultural poster volunteer \u2014 Asian-American festival</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">Procreate \u2014 Advanced</span>\n        <span class=\"pill hot\">Canva \u2014 Advanced</span>\n        <span class=\"pill dark\">TikTok / Reels</span>\n        <span class=\"pill line\">Illustrator \u2014 Basic</span>\n      </div>\n    </div>\n\n    <!-- WHY LOYOLA -->\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 Her Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>New Orleans as a walkable, living design resource \u2014 unmatched by any competing program</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Small cohort means personalized feedback as work matures rapidly</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Direct access to cultural clients, festivals, and creative community</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>City's visual identity aligns exactly with her aesthetic sensibility</div>\n      </div>\n    </div>\n\n    <!-- CONVERSION LEVERS -->\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Run a Loyola Design presence at Houston-area high-school art fairs \u2014 Lamar, Bellaire, Westside</div>\n        <div class=\"reach-item\">Build a \"New Orleans as a Design City\" short-form content series for TikTok and Reels \u2014 Taylor's medium is the message</div>\n        <div class=\"reach-item\">Publish a net-cost comparison tool built specifically for Texas out-of-state students and families</div>\n        <div class=\"reach-item\">Feature Texas alumni who built national careers after Loyola \u2014 company names, cities, real outcomes</div>\n        <div class=\"reach-item\">Emphasize placements in Austin, NYC, and Atlanta \u2014 prove the career ceiling is not Louisiana-shaped</div>\n        <div class=\"reach-item\">Provide a parent-facing one-pager on Loyola Design program outcomes \u2014 name recognition is the parental barrier</div>\n      </div>\n    </div>\n\n  </div>\n\n  <div class=\"footer\">\n    <span class=\"ftag\">Out-of-State (Texas)</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">TikTok Artist</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Social Media Creator</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Cultural Inspiration</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Graphic Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">AY 2025\u20132026</span>\n  </div>\n\n</div>";
+PERSONAS["ethan"] = "<div class=\"card\">\n\n  <div class=\"header-band\">\n    <span class=\"band-label\">UX Persona</span>\n    <div class=\"band-dot\"></div>\n    <span class=\"band-sub\">Loyola University New Orleans \u00b7 Dept. of Design</span>\n    <span class=\"band-ver\">Out-of-State \u00b7 #10</span>\n  </div>\n\n  <div class=\"hero\">\n    <div class=\"photo-col\">\n      <div class=\"photo-area\">\n        <svg width=\"60\" height=\"60\" viewBox=\"0 0 72 72\" fill=\"none\">\n          <circle cx=\"36\" cy=\"28\" r=\"16\" stroke=\"white\" stroke-width=\"2.5\"/>\n          <path d=\"M8 68c0-15.464 12.536-28 28-28s28 12.536 28 28\" stroke=\"white\" stroke-width=\"2.5\" stroke-linecap=\"round\"/>\n        </svg>\n        <span>Photo Placeholder</span>\n      </div>\n      <div class=\"photo-tag\">\u25c6 CS Background \u2192 UI/UX Design</div>\n    </div>\n    <div class=\"hero-right\">\n      <span class=\"persona-tag\">\u2726 Persona #10</span>\n      <div class=\"name\">Ethan<br><span>Park</span></div>\n      <div class=\"meta\">\n        <span class=\"meta-chip\"><strong>Age</strong> 18</span>\n        <span class=\"meta-chip\"><strong>Atlanta, GA</strong></span>\n        <span class=\"meta-chip\"><strong>Background</strong> AP CS A / App Development Club Founder</span>\n        <span class=\"meta-chip\"><strong>Path</strong> Interactive (UI/UX) Design \u2014 Out-of-State</span>\n      </div>\n      <div class=\"quote\">Every time I use someone else's app, I notice everything I'd fix. I want to be the person who fixes it.</div>\n    </div>\n  </div>\n\n  <div class=\"content\">\n\n    <div class=\"sec full\">\n      <div class=\"sec-title\">Summary</div>\n      <div class=\"summary-block\">\n        <p>A high-achieving CS student with strong UX instincts who intentionally sought out a dedicated UI/UX program. He's ambitious, outcome-driven, and needs proof that a smaller program can compete nationally. He doesn't just build apps \u2014 he evaluates them.</p>\n      </div>\n    </div>\n\n    <div class=\"trigger\">\n      <div class=\"sec-title\">Key Trigger</div>\n      <p>He posted a Figma redesign of a K-pop fan app on Reddit and received hundreds of upvotes \u2014 along with detailed critique from working professionals. The feedback wasn't casual praise. For the first time, Ethan had external validation that his UX instincts operated at an industry level. Self-teaching had limits; formal training became the logical next step.</p>\n      <div class=\"trig-contrast\">\n        <div class=\"trig-box\">\n          <div class=\"tbox-label\">Before the Post</div>\n          <p>Strong instincts for fixing interfaces, but no external validation that those instincts were real</p>\n        </div>\n        <div class=\"trig-box b\">\n          <div class=\"tbox-label\">The Realization</div>\n          <p>Working designers recognized his thinking \u2014 formal UX training would systematize what he already had</p>\n        </div>\n      </div>\n    </div>\n\n    <div class=\"sec br\">\n      <div class=\"sec-title\">Goals</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Design and fix real-world app experiences</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Build a competitive UX portfolio quickly</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Land a job in Austin, NYC, or Atlanta tech markets</div>\n        <div class=\"kw\"><div class=\"kw-dot green\"></div>Develop UX skills systematically \u2014 not just through tutorials</div>\n      </div>\n    </div>\n\n    <div class=\"sec\">\n      <div class=\"sec-title\">Pain Points & Barriers</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Parents associate success with Georgia Tech or Emory \u2014 Loyola is unfamiliar</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Concern about academic rigor compared to GT's CS program</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Loyola carries no name recognition in Georgia circles</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Needs documented national placements \u2014 not regional outcomes</div>\n        <div class=\"kw\"><div class=\"kw-dot warn\"></div>Wants proof of alumni at recognizable tech companies</div>\n      </div>\n    </div>\n\n    <div class=\"sec br no-bb\">\n      <div class=\"sec-title\">Strengths & Tools</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Founder and President, App Development Club</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Regional Hackathon UI/UX track \u2014 2nd place finish</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Strong critique literacy \u2014 trained by online design communities</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>K-pop fan community website \u2014 designer and operator</div>\n      </div>\n      <div class=\"pills\">\n        <span class=\"pill hot\">Python / JS \u2014 Mid</span>\n        <span class=\"pill hot\">Figma \u2014 Self-Taught</span>\n        <span class=\"pill dark\">React Native \u2014 Basic</span>\n        <span class=\"pill line\">GitHub</span>\n      </div>\n    </div>\n\n    <div class=\"sec no-bb\">\n      <div class=\"sec-title\">Why Loyola \u2014 His Perspective</div>\n      <div class=\"kw-list\">\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Dedicated Interactive Design focus \u2014 not a generic design program</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Small cohort means faster portfolio growth with direct faculty access</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Structured UX training \u2014 methodology, not just tools or tutorials</div>\n        <div class=\"kw\"><div class=\"kw-dot blue\"></div>Intentional discovery \u2014 he searched for this program, didn't stumble on it</div>\n      </div>\n    </div>\n\n    <div class=\"reach\">\n      <div class=\"sec-title\">Recruitment Conversion Levers</div>\n      <div class=\"reach-grid\">\n        <div class=\"reach-item\">Publish an alumni placement map with company names and cities \u2014 Austin, NYC, Atlanta hires are the proof points</div>\n        <div class=\"reach-item\">Provide a parent-facing career outcomes packet addressing the GT/Emory comparison directly</div>\n        <div class=\"reach-item\">Attend Georgia STEM-focused high-school events in metro Atlanta \u2014 Westlake, Midtown, Decatur</div>\n        <div class=\"reach-item\">Highlight tech-forward curriculum \u2014 prototyping, user research, web interactivity, front-end integration</div>\n        <div class=\"reach-item\">Emphasize national job placement in all materials \u2014 make clear the career ceiling is not Louisiana-shaped</div>\n        <div class=\"reach-item\">Feature alumni at recognizable tech companies outside the South \u2014 company names close this audience</div>\n      </div>\n    </div>\n\n  </div>\n\n  <div class=\"footer\">\n    <span class=\"ftag\">Out-of-State (Georgia)</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">CS Background</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">App Development</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">K-pop Design Inspiration</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">Interactive Design</span><span class=\"fsep\">\u2726</span>\n    <span class=\"ftag\">AY 2025\u20132026</span>\n  </div>\n\n</div>";
+
+let currentId = null;
+
+function showPersona(id) {
+  currentId = id;
+  const view = document.getElementById('persona-view');
+  const wrapper = document.getElementById('persona-wrapper');
+  const mainView = document.getElementById('main-view');
+  
+  // Set background color
+  document.getElementById('persona-view').style.background = BODYBG[id];
+  
+  // Inject card HTML with persona color class
+  wrapper.innerHTML = `<div class="persona-${id}">${PERSONAS[id]}</div>`;
+  
+  // Update nav name
+  document.getElementById('nav-name').textContent = NAMES[id];
+  
+  // Switch views
+  mainView.style.display = 'none';
+  view.style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function showMain() {
+  document.getElementById('main-view').style.display = 'block';
+  document.getElementById('persona-view').style.display = 'none';
+  currentId = null;
+}
+
+function navigate(dir) {
+  const idx = ORDER.indexOf(currentId);
+  const next = ORDER[(idx + dir + ORDER.length) % ORDER.length];
+  showPersona(next);
+}
+
+function filterCards(filter, btn) {
+  // Update active button
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  
+  // Show/hide cards
+  document.querySelectorAll('.p-card').forEach(card => {
+    const filters = card.dataset.filters.split(' ');
+    card.style.display = filters.includes(filter) ? 'block' : 'none';
+  });
+}
+</script>
+</body>
+</html>
